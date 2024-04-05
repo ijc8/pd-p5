@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Pd + P5.js</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      const context = new AudioContext()
+      async function click() {
+        console.log("click")
+        await context.resume()
+        await context.audioWorklet.addModule("heavy_web.js")
+        const node = new AudioWorkletNode(context, "custom-processor")
+        node.connect(context.destination)
+        window.removeEventListener("click", click)
+        window.addEventListener("mousemove", e => {
+          node.port.postMessage(e.clientX)
+        })
+      }
+      window.addEventListener("click", click)
+
+      function setup() {
+        createCanvas(1280, 720);
+        noStroke();
+        rectMode(CENTER);
+      }
+
+      function draw() {
+        background(230);
+        fill(244, 122, 158);
+        rect(mouseX, height / 2, mouseY / 2 + 10, mouseY / 2 + 10);
+        fill(237, 34, 93);
+        let inverseX = width - mouseX;
+        let inverseY = height - mouseY;
+        rect(inverseX, height / 2, inverseY / 2 + 10, inverseY / 2 + 10);
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.min.js"></script>
+  </body>
+</html>
