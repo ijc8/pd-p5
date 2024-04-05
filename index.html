@@ -7,20 +7,20 @@
   </head>
   <body>
     <script type="text/javascript">
+      // Audio context + worklet setup
       const context = new AudioContext()
+      let node = null
       async function click() {
         console.log("click")
         await context.resume()
-        await context.audioWorklet.addModule("heavy_web.js")
-        const node = new AudioWorkletNode(context, "custom-processor")
+        await context.audioWorklet.addModule("worklet.js")
+        node = new AudioWorkletNode(context, "custom-processor")
         node.connect(context.destination)
         window.removeEventListener("click", click)
-        window.addEventListener("mousemove", e => {
-          node.port.postMessage(e.clientX)
-        })
       }
       window.addEventListener("click", click)
 
+      // p5 sketch
       function setup() {
         createCanvas(1280, 720);
         noStroke();
@@ -35,6 +35,10 @@
         let inverseX = width - mouseX;
         let inverseY = height - mouseY;
         rect(inverseX, height / 2, inverseY / 2 + 10, inverseY / 2 + 10);
+      }
+
+      function mouseMoved() {
+        if (node) node.port.postMessage(mouseX)
       }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.min.js"></script>
